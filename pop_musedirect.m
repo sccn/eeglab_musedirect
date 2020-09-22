@@ -43,10 +43,10 @@ if nargin < 1
     if fileName(1) == 0, return; end
     fileName = fullfile(filePath, fileName);
     
-    promptstr    = { { 'style'  'checkbox'  'string' 'Import auxilary channel (coming soon)' 'tag' 'aux' 'value' 0 } ...
-                     { 'style'  'checkbox'  'string' 'Import power values (coming soon)'     'tag' 'power' 'value' 0 } ...
-                     { 'style'  'checkbox'  'string' 'Import accelerometer (and gyro) values (coming soon)' 'tag' 'acc' 'value' 0 } ...
-                     { 'style'  'checkbox'  'string' 'Import everything (coming soon)' 'tag' 'importall' 'value' 0 } ...
+    promptstr    = { { 'style'  'checkbox'  'string' 'Import auxilary channel (coming soon)' 'tag' 'aux' 'value' 0 'enable' 'off' } ...
+                     { 'style'  'checkbox'  'string' 'Import power values (coming soon)'     'tag' 'power' 'value' 0  'enable' 'off'  } ...
+                     { 'style'  'checkbox'  'string' 'Import accelerometer (and gyro) values (coming soon)' 'tag' 'acc' 'value' 0 'enable' 'off'  } ...
+                     { 'style'  'checkbox'  'string' 'Import everything (coming soon)' 'tag' 'importall' 'value' 0 'enable' 'off'  } ...
                      { 'style'  'text'      'string' 'Sampling rate' } ...
                      { 'style'  'edit'      'string' 'auto' 'tag' 'srate' } ...
                      };
@@ -75,6 +75,18 @@ M = importdata(fileName, ',');
 headerNames =  M.textdata(1,:);
 if length(headerNames) == 1, headerNames = strsplit(headerNames{1}, ','); end
 
+% fist column (time stamp is not imported as 0)
+if size(M.data,2) < length(headerNames)-1, headerNames(1)   = []; end
+if size(M.data,2) < length(headerNames)  , headerNames(end) = []; end
+
+% unique time stamps
+allTimes = datetime(M.data(:,1), 'ConvertFrom', 'posixtime');
+
+% convert the EEG
+nonNan = ~isnan(M.data(:,2:5));
+eegTime = allTimes(nonNan(1:length(nonNan)));
+eegData = M.data(nonNan(1:length(nonNan)), 2:5);
+
 % sampling rate
 if isnan(str2double(opt.srate)) && ~isnumeric(opt.srate)
     fprintf('Figuring out optimal sampling rate...\n');
@@ -98,7 +110,7 @@ end
 % interpolate data
 EEG = eeg_emptyset;
 EEG.chanlocs = struct('labels', { 'TP9'	'AF7'	'AF8'	'TP10' });
-EEG.data = eegData;
+EEG.data = eegData';
 
 %EEG.data = bsxfun(@minus, EEG.data, mean(EEG.data,2));
 EEG.pnts   = size(EEG.data,2);
