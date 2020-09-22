@@ -1,5 +1,7 @@
 # eeglab_musedirect plugin
 
+This plugin allows importing into EEGLAB files recorded using the Muse Direct application.
+
 The repository for this plugin is located at
 https://github.com/sccn/eeglab_musedirect
 
