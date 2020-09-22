@@ -1,4 +1,4 @@
-# eeglab_musemdirect plugin
+# eeglab_musedirect plugin
 
 The repository for this plugin is located at
 https://github.com/eeglabdevelopers/eeglab_musemonitor
