@@ -9,6 +9,9 @@ If you want to fix bugs, please issue a pull request. For more
 information on how to do that, see
 https://sccn.ucsd.edu/wiki/Fork_the_EEGLAB_repo
 
+version 1.1
+- Fix issue with variable; add example file.
+
 version 1.0
 - Initial release
 
