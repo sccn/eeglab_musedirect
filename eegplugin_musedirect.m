@@ -30,7 +30,7 @@
 
 function vers = eegplugin_musedirect(fig, trystrs, catchstrs)
 
-    vers = 'musedirect1.1';
+    vers = 'musedirect1.2';
     if nargin < 3
         error('eegplugin_musedirect requires 3 arguments');
     end;

@@ -106,6 +106,10 @@ if isnan(str2double(opt.srate)) && ~isnumeric(opt.srate)
 elseif ~isnumeric(opt.srate)
     opt.srate = str2double(opt.srate);
 end
+if opt.srate < 100 || opt.srate > 1200
+    opt.srate = 256;
+    disp('Cannot find sampling rate, defaulting to 256 Hz');
+end
 
 % interpolate data
 EEG = eeg_emptyset;
