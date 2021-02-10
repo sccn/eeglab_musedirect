@@ -33,10 +33,14 @@
 % Revision 1.5 2010/03/23 21:19:52 roy
 % added some lines so that the function can deal with the space lines in the ASCII multiplexed data file
 
+% edits on 2/10/2021 by Cedri Cannard:
+% fixed import issues and added timestamp ms accuracy
+
 function [EEG, com] = pop_musedirect(fileName, varargin)
 
 com = '';
-EEG = [];
+% EEG = [];
+EEG = eeg_emptyset;
 
 if nargin < 1
     [fileName, filePath] = uigetfile2({ '*.csv' '*.CSV' }, 'Select Muse Direct .csv file - pop_musedirect()');
@@ -71,21 +75,38 @@ opt = finputcheck(options, { 'aux'       'string'    { 'on' 'off' }    'off';
                              'importall' 'string'    { 'on' 'off' }    'off' }, 'pop_musedirect');
 if isstr(opt), error(opt); end
 
-M = importdata(fileName, ',');
-headerNames =  M.textdata(1,:);
-if length(headerNames) == 1, headerNames = strsplit(headerNames{1}, ','); end
+% M = importdata(fileName, ',');
+% headerNames =  M.textdata(1,:);
+% if length(headerNames) == 1, headerNames = strsplit(headerNames{1}, ','); end
+% 
+% % fist column (time stamp is not imported as 0)
+% if size(M.data,2) < length(headerNames)-1, headerNames(1)   = []; end
+% if size(M.data,2) < length(headerNames)  , headerNames(end) = []; end
+% 
+% % unique time stamps
+% allTimes = datetime(M.data(:,1), 'ConvertFrom', 'posixtime');
+% 
+% % convert the EEG
+% nonNan = ~isnan(M.data(:,2:5));
+% eegTime = allTimes(nonNan(1:length(nonNan)));
+% eegData = M.data(nonNan(1:length(nonNan)), 2:5);
 
-% fist column (time stamp is not imported as 0)
-if size(M.data,2) < length(headerNames)-1, headerNames(1)   = []; end
-if size(M.data,2) < length(headerNames)  , headerNames(end) = []; end
+%Import csv data
+disp('Importing data...');
+csv_data = readtable(fileName);
 
-% unique time stamps
-allTimes = datetime(M.data(:,1), 'ConvertFrom', 'posixtime');
+%Variable names
+headerNames = csv_data.Properties.VariableNames(2:18); 
 
-% convert the EEG
-nonNan = ~isnan(M.data(:,2:5));
+%Timestamps
+allTimes = datetime(table2array(csv_data(:,1)), 'ConvertFrom','posixtime', 'TimeZone','America/Vancouver', ...
+    'TicksPerSecond', str2double(opt.srate),'Format','dd-MMM-yyyy HH:mm:ss.SSSSS');
+
+%EEG data
+csv_data = table2array(csv_data(:,2:18));
+nonNan = ~isnan(csv_data(:,1:4));
 eegTime = allTimes(nonNan(1:length(nonNan)));
-eegData = M.data(nonNan(1:length(nonNan)), 2:5);
+EEG.data = csv_data(nonNan(1:length(nonNan)), 1:4)';
 
 % sampling rate
 if isnan(str2double(opt.srate)) && ~isnumeric(opt.srate)
@@ -111,12 +132,13 @@ if opt.srate < 100 || opt.srate > 1200
     disp('Cannot find sampling rate, defaulting to 256 Hz');
 end
 
-% interpolate data
-EEG = eeg_emptyset;
+% Channel labels
+% EEG = eeg_emptyset;
 EEG.chanlocs = struct('labels', { 'TP9'	'AF7'	'AF8'	'TP10' });
-EEG.data = eegData';
-
+% EEG.data = eegData';
 %EEG.data = bsxfun(@minus, EEG.data, mean(EEG.data,2));
+
+% Interpolate other EEG struct variables
 EEG.pnts   = size(EEG.data,2);
 EEG.nbchan = size(EEG.data,1);
 EEG.xmin = 0;
