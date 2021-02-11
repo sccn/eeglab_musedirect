@@ -99,7 +99,7 @@ csv_data = readtable(fileName);
 headerNames = csv_data.Properties.VariableNames(2:18); 
 
 %Timestamps
-allTimes = datetime(table2array(csv_data(:,1)), 'ConvertFrom','posixtime', 'TimeZone','America/Vancouver', ...
+allTimes = datetime(table2array(csv_data(:,1)), 'ConvertFrom','posixtime', ...
     'TicksPerSecond', str2double(opt.srate),'Format','dd-MMM-yyyy HH:mm:ss.SSSSS');
 
 %EEG data
