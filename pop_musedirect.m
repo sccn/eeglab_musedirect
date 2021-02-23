@@ -33,7 +33,7 @@
 % Revision 1.5 2010/03/23 21:19:52 roy
 % added some lines so that the function can deal with the space lines in the ASCII multiplexed data file
 
-% edits on 2/10/2021 by Cedri Cannard:
+% edits on 2/10/2021 by Cedric Cannard:
 % fixed import issues and added timestamp ms accuracy
 
 function [EEG, com] = pop_musedirect(fileName, varargin)
